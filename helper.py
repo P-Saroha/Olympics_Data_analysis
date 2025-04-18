@@ -12,6 +12,7 @@ def medal_tally(df):
 
     return medal_tally
 
+##########################################################################################################
 def fetch_medal_tally(df,years,country):
     medal_df  = df.drop_duplicates(subset=['Team', 'NOC' , 'Games', 'Year', 'City', 'Sport','Event','Medal'])
     
@@ -41,7 +42,7 @@ def fetch_medal_tally(df,years,country):
     return medal
 
     
-        
+######################################################################################################        
 def country_years(df):
 
     years = df['Year'].unique().tolist()
@@ -53,14 +54,14 @@ def country_years(df):
     country.insert(0,'overall')
 
     return years, country
-
+###########################################################################################################
 def data_over_time(df,col):
     country_over_time = df.drop_duplicates(['Year',col])['Year'].value_counts().reset_index()
     country_over_time.rename(columns={'count': col ,'Year': 'No of years' },inplace = True)
 
     return country_over_time
 
-
+#########################################################################################################
 def most_successful(df, sport):
     # Remove rows without a medal
     temp_df = df.dropna(subset=['Medal'])
@@ -80,7 +81,7 @@ def most_successful(df, sport):
 
     return top_athletes
 
-
+##########################################################################################################
 def year_wise_medal(df,country):
     new_df = df.dropna(subset=['Medal'])
     new_df.drop_duplicates(subset=['Team', 'NOC' , 'Games', 'Year', 'City', 'Sport','Event','Medal'],inplace = True)
@@ -89,7 +90,7 @@ def year_wise_medal(df,country):
     final_df = reg_df.groupby('Year').count()['Medal'].reset_index()
 
     return final_df
-
+###############################################################################################################
 def best_sport_country(df,country):
     new_df = df.dropna(subset=['Medal'])
     new_df.drop_duplicates(subset=['Team', 'NOC' , 'Games', 'Year', 'City', 'Sport','Event','Medal'],inplace = True)
@@ -98,7 +99,7 @@ def best_sport_country(df,country):
 
     pt = reg_df.pivot_table(index = 'Sport' , columns = 'Year', values = 'Medal', aggfunc = 'count' ).fillna(0)
     return pt
-
+##################################################################################################################
 def most_successful_countrywise(df, country):
     # Remove rows without a medal
     temp_df = df.dropna(subset=['Medal'])
@@ -114,3 +115,27 @@ def most_successful_countrywise(df, country):
     ].drop_duplicates('Name')  
 
     return top_athletes
+
+#####################################################################################
+def weight_v_height(df,sport):
+    athlete_df = df.drop_duplicates(subset=['Name', 'region'])
+    athlete_df['Medal'].fillna('No Medal', inplace=True)
+    if sport != 'Overall':
+        temp_df = athlete_df[athlete_df['Sport'] == sport]
+        return temp_df
+    else:
+        return athlete_df
+
+#######################################################################################
+def men_vs_women(df):
+    athlete_df = df.drop_duplicates(subset=['Name', 'region'])
+
+    men = athlete_df[athlete_df['Sex'] == 'M'].groupby('Year').count()['Name'].reset_index()
+    women = athlete_df[athlete_df['Sex'] == 'F'].groupby('Year').count()['Name'].reset_index()
+
+    final = men.merge(women, on='Year', how='left')
+    final.rename(columns={'Name_x': 'Male', 'Name_y': 'Female'}, inplace=True)
+
+    final.fillna(0, inplace=True)
+
+    return final
